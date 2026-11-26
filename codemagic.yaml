@@ -1,18 +1,26 @@
 workflows:
-  ios-ipa-workflow:
-    name: iOS IPA Build
+  ios-unsigned-ipa:
+    name: iOS Unsigned IPA Build
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
       xcode: latest
     scripts:
-      - name: Set up code signing settings on Xcode project
+      - name: Build unsigned app
         script: |
-          xcode-project use-profiles
-      - name: Build ipa for distribution
+          xcodebuild build \
+            -project OdevTakipAI.xcodeproj \
+            -scheme OdevTakipAI \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Package into IPA
         script: |
-          xcode-project build-ipa \
-            --project "OdevTakipAI.xcodeproj" \
-            --scheme "OdevTakipAI"
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/OdevTakipAI.app Payload/
+          zip -r OdevTakipAI.ipa Payload
     artifacts:
-      - build/ios/ipa/*.ipa
+      - OdevTakipAI.ipa
