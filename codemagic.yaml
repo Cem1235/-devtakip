@@ -1,0 +1,18 @@
+workflows:
+  ios-ipa-workflow:
+    name: iOS IPA Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Build ipa for distribution
+        script: |
+          xcode-project build-ipa \
+            --project "OdevTakipAI.xcodeproj" \
+            --scheme "OdevTakipAI"
+    artifacts:
+      - build/ios/ipa/*.ipa
